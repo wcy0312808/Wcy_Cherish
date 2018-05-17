@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--<group android:id="@+id/g1">-->
+        <!--<item-->
+            <!--android:id="@+id/personalcenter"-->
+            <!--android:icon="@mipmap/ic_nav_person"-->
+            <!--android:title="@string/personalcenter"/>-->
+
+        <!--<item-->
+            <!--android:id="@+id/projectintroduction"-->
+            <!--android:icon="@mipmap/ic_nav_about"-->
+            <!--android:title="@string/projectintroduction"/>-->
+    <!--</group>-->
+
+
+    <!--<item-->
+        <!--android:id="@+id/edtext"-->
+        <!--android:icon="@mipmap/ic_nav_edxitback"-->
+        <!--android:title="@string/edtext"/>-->
+
+    <!--<item-->
+        <!--android:id="@+id/exit"-->
+        <!--android:icon="@mipmap/icon_person_exit"-->
+        <!--android:title="@string/exit"/>-->
+
+</menu>

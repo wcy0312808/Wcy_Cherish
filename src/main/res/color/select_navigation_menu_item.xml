@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--选中个人中心时变换颜色-->
+    <item android:color="@color/blue" android:state_checked="true"></item>
+    <!-- pressed颜色 -->
+    <item android:color="@color/blue" android:state_pressed="true"></item>
+    <!-- focused颜色 -->
+    <item android:color="@color/blue" android:state_focused="true"></item>
+    <!-- default颜色 -->
+    <item android:color="@color/black"/>
+</selector>

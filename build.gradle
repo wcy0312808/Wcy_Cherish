@@ -1,0 +1,163 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+android {
+    //编译SDK的版本
+    compileSdkVersion 25
+    buildToolsVersion "25.0.3"
+
+    //默认配置内容
+    defaultConfig {
+        applicationId "wcy.godinsec.wcy_dandan"
+        minSdkVersion 19
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+        //指定打包成Jar文件时候的文件名称
+        archivesBaseName = "wcy"
+        //当方法数超过65535(方法的索引使用的是一个short值，
+        //而short最大值是65535)的时候允许打包成多个dex文件，动态加载dex。这里面坑很深啊
+        multiDexEnabled true
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField('boolean', 'isDebug', project.property('isDebug').toString())
+        buildConfigField('String', 'CHANNEL', project.property('channel').toString())
+        buildConfigField('String', 'ServerAddress', project.property('ServerAddress').toString())
+        buildConfigField('String', 'apiVersion', project.property('apiversion').toString())
+
+        resConfigs "zh" //只保留英语和中文语言，可以减小APK大小
+    }
+    buildTypes {
+        release {
+            //开启混淆
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //是否清理无用资源
+            shrinkResources true
+            //是否启用zipAlign压缩
+            zipAlignEnabled true
+
+            //采用动态替换字符串的方式生成不同的release.apk
+            applicationVariants.all { variant ->
+                variant.outputs.each { output ->
+                    def outputFile = output.outputFile
+                    if (outputFile != null && outputFile.name.endsWith('release.apk')) {
+                        def timeStamp = new Date().format('yyyyMMddHH');
+                        def fileName = "WeShare-${defaultConfig.versionName}" + "-" + timeStamp + "-lj-" + ".apk";
+                        output.outputFile = file("${outputFile.parent}/${fileName}")
+                    }
+                }
+            }
+        }
+    }
+
+    //程序在打包过程中会首先检查lint，如果出现错误的话就会停止build，我们可以关闭这个功能
+    lintOptions {
+        //打包判断是release的情况下才有提示
+        checkReleaseBuilds false
+        //即使报错也不会停止打包
+        abortOnError false
+    }
+
+    //允许系统去Libs中找资源文件
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+    //默认的一些相关文件
+    sourceSets {
+        main {
+//            assets.srcDirs = ['assets']    //资源文件
+//            jni.srcDirs 'src/main/jni'     //jni文件
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    //multiDex的一些相关配置，这样配置可以让你的编译速度更快
+    dexOptions {
+        preDexLibraries = false
+        //让它不要对Lib做preDexing
+        incremental true
+        //开启incremental dexing,优化编译效率，这个功能android studio默认是关闭的。
+        javaMaxHeapSize "4g"     //增加java堆内存大小
+    }
+
+    /*配置渠道*/
+    productFlavors {
+        yingyongbao { manifestPlaceholders = [UMENG_CHANNEL_VALUE: "yingyongbao"] }
+        wandoujia { manifestPlaceholders = [UMENG_CHANNEL_VALUE: "wandoujia"] }
+        xiaomi { manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"] }
+    }
+
+
+}
+
+dependencies {
+    /** *********LeakCanary的SDK,打包时记得注释掉      ***********/
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3'
+    /** *****************  系统自带的       ***********************/
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile 'junit:junit:4.12'
+    /** *********  百分比布局支持包       ***********/
+    compile 'com.android.support:percent:25.3.1'
+    /** *********android Meterrial design的添加      ***********/
+    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    /** *****************  Rxjava+Retrofit       ***********************/
+    compile 'io.reactivex.rxjava2:rxjava:2.0.5'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    /** *****************  butterknife       ***********************/
+    compile 'com.jakewharton:butterknife:8.2.1'
+    apt 'com.jakewharton:butterknife-compiler:8.2.1'
+    /** *****************  eventbus       ***********************/
+    compile 'org.greenrobot:eventbus:3.0.0'
+    /** *****************  recyclerview       ***********************/
+    compile 'com.android.support:recyclerview-v7:25.3.1'
+    /** *****************  fresco       ***********************/
+    compile 'com.facebook.fresco:fresco:0.9.0'
+    //    /** *****************  glide   ***********************/
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    /** *****************  SpinKit-BaseDialog       ***********************/
+    compile 'com.github.ybq:Android-SpinKit:1.1.0'
+    //    /** *********Grav 粒子效果的动画    ***********/
+    //    compile 'com.github.glomadrian:grav:1@aar'
+    /** *********       圆形图片          ***********/
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    /** *********  BottomNavigationBar       ***********/
+    compile 'com.ashokvarma.android:bottom-navigation-bar:1.2.0'
+    compile 'com.aurelhubert:ahbottomnavigation:1.3.3'
+    /** *********  下拉刷新的RecyclerView       ***********/
+    compile 'com.jude:easyrecyclerview:+'
+    /** *********  带有数字的progressBar       ***********/
+    compile 'com.daimajia.numberprogressbar:library:1.2@aar'
+    compile files('libs/BaiduLBS_Android.jar')
+    /** *********  bannerView的lib       ***********/
+    compile(name: 'bannerlib-release', ext: 'aar')
+//    compile 'com.youth.banner:banner:1.4.10'  //最新版本
+    /** *********  友盟分享的jar       ***********/
+    compile files('libs/SocialSDK_Sina_Simplify.jar')
+    compile files('libs/SocialSDK_WeChat_Simplify.jar')
+    compile files('libs/SocialSDK_QQ_Simplify.jar')
+    compile files('libs/umeng_social_net.jar')
+    compile files('libs/umeng_social_api.jar')
+    compile files('libs/umeng_social_tool.jar')
+    /** *********  高德地图自带的定位       ***********/
+    compile 'com.zaaach:citypicker:1.1'
+    /** *********  友盟推送的的aar文件       ***********/
+    compile(name: 'PushSDK-debug', ext: 'aar')
+    compile files('libs/umeng_social_shareboard.jar')
+    /** *********  友盟统计       ***********/
+    compile files('libs/umeng-common-1.4.4.jar')
+    compile files('libs/umeng-analytics-7.4.4.jar')
+    /** *********  动态壁纸       ***********/
+    compile 'com.flaviofaria:kenburnsview:1.0.7'
+}

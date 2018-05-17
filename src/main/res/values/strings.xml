@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">y cherise w</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">设置</string>
+    <string name="action_location">定位</string>
+    <string name="action_share">分享</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="tips">提示</string>
+    <string name="cancle">取消</string>
+    <string name="confrim">确认</string>
+    <string name="tab_1">主页</string>
+    <string name="tab_2">音频</string>
+    <string name="tab_3">地图</string>
+    <string name="tab_4">综合</string>
+    <string name="personalcenter">个人中心</string>
+    <string name="projectintroduction">项目简介</string>
+    <string name="invite">邀请好友</string>
+    <string name="service">联系作者</string>
+    <string name="optimi">一键加速</string>
+    <string name="exit">退出应用</string>
+    <string name="transfiguration">应用变身</string>
+    <string name="permission_desc">为了应用可以正常使用，请您点击确认申请权限。</string>
+    <string name="dialog_share_title">分享到</string>
+    <string name="memory_full_not_run">内存爆满 没有空间运行啦，先清理一下内存吧</string>
+    <string name="memory_full_not_download">内存爆满 没有空间下载啦，先清理一下内存吧</string>
+    <string name="net_error">网络异常,请检查网络</string>
+
+    <string name="large_text">
+        爱吖妹纸数据来源于代码家的干货集中营,那么多完整的App,你选择了我，这是我的幸运。
+        \n\n从第一次在博客园上写博客到现在，我一次一次地提高博文的质量和代码的可读性，都是为了你们，因为有你们，才有我。
+        \n\n这是我爱吖校推后的第二个开源的App，主要采取Retrofit+Rx+MVP这套最近火热的开发体系。
+        \n\n期待你与我进行心灵交流。因为我也曾遇到各种棘手的问题，到处询问不到答案
+        \n\n那个时候的我，也许正如现在的你。而我，也还在这条道路上默默前行。
+        \n\n 数据来源于代码家的干货集中营https://gank.io，一切数据解释权归代码家所有。
+        \n\n 关注我的github：https://github.com/nanchen2251
+        \n\n 我的个人主页：http://www.cnblogs.com/liushilin/
+        \n\n 项目完全开源，如果你觉得不错，请帮忙star一下吧，或者点击右上角的分享，分享给你的朋友，这是你对我最大的支持，非常感谢！</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/button_normal_bg1"></solid>
+
+            <!--设置上面两个角的弧度-->
+            <corners
+                android:radius="20dp" />
+        </shape>
+    </item>
+
+
+    <!--设置边框-->
+<!--    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="8dp" />
+            <stroke
+                android:width="0.5dp"
+                android:color="#55488f" />
+        </shape>
+    </item>-->
+</layer-list>

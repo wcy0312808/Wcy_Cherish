@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="180dp"/>
+            <solid android:color="#ffffff"/>
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress"
+        >
+        <clip><!--可裁剪对象-->
+            <shape android:shape="rectangle">
+                <corners android:radius="179dp"/>
+                <solid android:color="#fdcf62"/>
+            </shape>
+        </clip>
+    </item>
+</layer-list>

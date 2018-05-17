@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wcy.godinsec.wcy_dandan.views.customview.Flowlayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/itemLowBackground">
+
+    <TextView
+        style="@style/flowText"
+        android:text="Welcome"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="IT工程师"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="我真是可以的"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="你觉得呢"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="不要只知道挣钱"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="努力ing"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="此控件"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="所有子控件"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="最后一行"
+        android:textColor="#43BBE7"/>
+
+    <TextView
+        style="@style/flowText"
+        android:text="它的高度就是确定的"
+        android:textColor="#43BBE7"/>
+</wcy.godinsec.wcy_dandan.views.customview.Flowlayout>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+    >
+
+
+    <ImageView
+        android:layout_marginLeft="30dp"
+        android:id="@+id/iv_app_logo"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerVertical="true"
+        android:src="@mipmap/icon_person_optimi"
+        />
+
+    <TextView
+        android:layout_alignTop="@+id/iv_app_logo"
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/iv_app_logo"
+        android:maxWidth="200dp"
+        android:textColor="#333333"
+        android:textSize="11sp"/>
+
+    <TextView
+        android:id="@+id/tv_app_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/iv_app_logo"
+        android:maxWidth="200dp"
+        android:textColor="#333333"
+        android:textSize="11sp"/>
+
+    <TextView
+        android:id="@+id/tv_app_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/iv_app_logo"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/iv_app_logo"
+        android:maxWidth="200dp"
+        android:textColor="#999999"
+        android:textSize="9.67sp"/>
+
+    <wcy.godinsec.wcy_dandan.views.customview.CustomProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="72dp"
+        android:layout_height="24dp"
+        android:background="@drawable/custom_progress_bg"
+        android:padding="1dp"
+        android:max="1000"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        android:progress="1000"
+        android:progressDrawable="@drawable/custom_progress"/>
+</RelativeLayout>

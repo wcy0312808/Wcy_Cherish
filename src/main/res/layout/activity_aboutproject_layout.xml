@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   >
+
+    <!--
+     继承自Linearlayout，简单来说就是一个垂直的LinearLayout,
+     同时该空间严重依赖CoordinatorLayout
+     必须用于Coordinatorlayout的子布局，否则无效
+     AppBarLayout必须是CoordinatorLayout的直接子View
+     -->
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/about_title"
+        android:layout_width="match_parent"
+        android:layout_height="300dp">
+
+        <!--
+        它其实是一个继承Fraglayout的布局，
+        然后也可以看做是一个ToolBar的集合体
+        contentScrim 实现纱布效果
+        -->
+        <android.support.design.widget.CollapsingToolbarLayout
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            android:id="@+id/collapsingToolBar"
+            app:contentScrim="@color/orange"
+            android:fitsSystemWindows="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/nav_home_image"
+                android:src="@mipmap/person_background1"
+                android:scaleType="fitXY"
+                android:contentDescription="@null"
+               />
+
+            <android.support.v7.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:id="@+id/toolbar"
+                app:navigationIcon="@mipmap/back_new"
+                app:layout_collapseMode="pin"/>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+    </android.support.design.widget.AppBarLayout>
+
+    <!--
+    behavior需要设置在触发滚动事件的view之上
+    -->
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:textColor="@color/black"
+                android:text="个人中心"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp"
+        app:backgroundTint="@color/orange"
+        app:rippleColor="#33728dff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/FAB_about_share"
+        android:layout_margin="16dp"
+        android:src="@mipmap/actionbar_share"
+        app:layout_anchor="@id/about_title"
+        app:layout_anchorGravity="bottom|end"/>
+
+
+</android.support.design.widget.CoordinatorLayout>

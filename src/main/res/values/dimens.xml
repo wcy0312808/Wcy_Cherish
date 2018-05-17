@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="toolbar_height" >45dp</dimen>
+    <dimen name="toolbar_name_size">20sp</dimen>
+    <dimen name="tab_text_size">14sp</dimen>
+    <dimen name="navigation_header_height">260dp</dimen>
+    <dimen name="navigation_header_icon_height">80dp</dimen>
+    <dimen name="navigation_header_icon_margin">10dp</dimen>
+    <dimen name="dialog_spinkitview_padding">20dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="global_screenshot_bg_padding">20dp</dimen>
+</resources>

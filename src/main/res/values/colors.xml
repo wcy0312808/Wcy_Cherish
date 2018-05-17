@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="activity_background">#ebeff2</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="textColor_3">#333333</color>
+    <color name="textColor_a">#aaaaaa</color>
+    <color name="line">#CCCCCC</color>
+    <color name="light_white">#00000000</color>
+    <color name="colorTheme">#ffce3d3a</color>
+    <color name="colorTabIndicator">#FDFDFD</color>
+    <color name="colorTabTextUnSelected">#D3D3D2</color>
+    <color name="colorTabTextSelected">#FDFDFD</color>
+    <color name="colorActivityBackground" >#FAFAFA</color>
+
+
+
+    <color name="red">#f23b3b</color>
+    <color name="orange">#f59f00</color>
+    <color name="bluck">#000000</color>
+    <color name="backgroud">#e9e3e3</color>
+    <color name="yinse">#616161</color>
+    <color name="sa_green">#1E9618</color>
+    <color name="sa_accent">#4EE147</color>
+    <color name="sa_green_dark">#156912</color>
+    <color name="error_text_colour">#8060ffe7</color>
+    <color name="teal">#00796B</color>
+    <color name="brown">#8D6E63</color>
+    <color name="grey">#607D8B</color>
+    <color name="prink">#FF4081</color>
+    <color name="blue">#2F98E9</color>
+    <color name="blue1">#6000E9</color>
+    <color name="blue2">#2050E9</color>
+    <color name="button_normal_bg1">#FF6456</color>
+    <color name="button_pressed_bg1">#DDDDDD</color>
+    <!-- Bottom Navigation -->
+    <color name="bg_bottom_navigation">#fcfcfc</color>
+    <color name="accent_bottom_navigation">#FF6A6A</color>
+    <color name="inactive_bottom_navigation">#9b9b9b</color>
+
+
+
+    <!--页面背景的颜色-->
+    <color name="colorPageBg">#f2f4f5</color>
+    <!--item的5.0一下版本选择器颜色-->
+    <color name="itemLowBackground">#d9d9d9</color>
+    <!--正文文字颜色-->
+    <color name="colorContent">#ff333333</color>
+
+    <color name="pull_down_pressed">#004160</color>
+    <color name="pull_down_no_pressed">#004F74</color>
+    <color name="translucent_background">#00000000</color>
+
+</resources>

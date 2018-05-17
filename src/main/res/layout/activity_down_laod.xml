@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_down_laod"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <ImageView
+        android:id="@+id/imageview"
+        android:scaleType="fitXY"
+        android:src="@mipmap/person_background1"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"/>
+    <android.support.v7.widget.RecyclerView
+        android:layout_below="@+id/imageview"
+        android:id="@+id/rv_downapp_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+</RelativeLayout>
