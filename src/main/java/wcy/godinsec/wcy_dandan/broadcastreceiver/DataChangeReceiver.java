@@ -1,16 +1,8 @@
-package wcy.godinsec.wcy_dandan.views.broadcastreceiver;
+package wcy.godinsec.wcy_dandan.broadcastreceiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-
-import java.util.Date;
-import java.util.List;
-
-import wcy.godinsec.wcy_dandan.utils.BeanToString;
-import wcy.godinsec.wcy_dandan.utils.DateUtils;
-import wcy.godinsec.wcy_dandan.utils.LogUtils;
-import wcy.godinsec.wcy_dandan.utils.SharedPreferencesUtils;
 
 /**
  * Auther：杨玉安 on 2017/11/23 10:47

@@ -18,8 +18,11 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import wcy.godinsec.wcy_dandan.R;
 import wcy.godinsec.wcy_dandan.appbase.BaseFragment;
+import wcy.godinsec.wcy_dandan.interfaces.OnSelectAllListener;
 import wcy.godinsec.wcy_dandan.utils.GlideImageLoader;
+import wcy.godinsec.wcy_dandan.utils.LogUtils;
 import wcy.godinsec.wcy_dandan.utils.ScreenUtils;
+import wcy.godinsec.wcy_dandan.views.activitys.LauncherActivity;
 
 /**
  * Auther：杨玉安 on 2017/8/25 11:25
@@ -28,7 +31,7 @@ import wcy.godinsec.wcy_dandan.utils.ScreenUtils;
  * QQ    ：837513007
  * Function：
  */
-public class HomeFragment extends BaseFragment {
+public class HomeFragment extends BaseFragment implements OnSelectAllListener {
     @BindView(R.id.home_banner)
     BannerView mHomeBanner;
     private ArrayList<String> mBannerUrl;
@@ -42,14 +45,34 @@ public class HomeFragment extends BaseFragment {
     protected void initViews(View view) {
         super.initViews(view);
         mBannerUrl = new ArrayList<>();
-        mBannerUrl.add("http://b350.photo.store.qq.com/psb?/V10Vj6mC3fauWq/sPtyfBxtnTqfXx40sYjS5EACMl7lYEMokBQ4mssq09w!/m/dIAFp9DeCQAAnull&bo=XAHcAAAAAAAFB6U!&rf=photolist&t=5");
-        mBannerUrl.add("http://b194.photo.store.qq.com/psb?/V10Vj6mC3fauWq/z03XBD6pAx1YtaWZizv2ts4R.8UXr28vT4Ip2ZTqe6I!/m/dGwapXMTLAAAnull&bo=mgDcAAAAAAAFB2I!&rf=photolist&t=5");
-        mBannerUrl.add("http://b148.photo.store.qq.com/psb?/V10Vj6mC3fauWq/0J3OrpvF6TWajyN4RnOSbEEn0LSnsBxlrNeVmUWBUZw!/m/dHKzOFhtKgAAnull&bo=rADcAAAAAAAFB1Q!&rf=photolist&t=5");
+        mBannerUrl.add("http://img3.imgtn.bdimg.com/it/u=1548105415,3079874028&fm=27&gp=0.jpg");
+        mBannerUrl.add("http://cnews.chinadaily.com.cn/img/attachement/jpg/site1/20170608/a41f726b05111aa2ece646.jpg");
+        mBannerUrl.add("http://img2.imgtn.bdimg.com/it/u=2750802454,1871560484&fm=27&gp=0.jpg");
 
         mHomeBanner.setViewPagerIsScroll(true)
                 .setUrls(mBannerUrl)
-                .setParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (ScreenUtils.getScreenWidth() * 350f / 1080)))
+                .setParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (ScreenUtils.getScreenWidth() * 400f / 1080)))
                 .setImageLoader(new GlideImageLoader())
                 .showAd();
+
+//        getLauncherActivity().addSelectListener(new OnSelectAllListener() {
+//            @Override
+//            public void changeState(Boolean isChange) {
+//                LogUtils.e("====changeState 接口回调====" + isChange);
+//            }
+//        });
+    }
+
+
+
+
+    public LauncherActivity getLauncherActivity() {
+        return (LauncherActivity) getActivity();
+    }
+
+    @Override
+    public void changeState(Boolean isChange) {
+        LogUtils.e("====changeState 接口回调====" + isChange);
+
     }
 }

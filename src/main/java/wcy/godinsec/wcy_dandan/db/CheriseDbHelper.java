@@ -23,17 +23,6 @@ public class CheriseDbHelper extends SQLiteOpenHelper {
         super(context, Constance.NAME, null, version);
     }
 
-    public static CheriseDbHelper getInstance(int version) {
-        if (mCheriseDbHelper == null) {
-            synchronized (SQLiteOpenHelper.class) {
-                if (mCheriseDbHelper == null) {
-                    mCheriseDbHelper = new CheriseDbHelper(WcyApplication.getInstance(), version);
-                }
-            }
-        }
-        return mCheriseDbHelper;
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
 //        db.beginTransaction();

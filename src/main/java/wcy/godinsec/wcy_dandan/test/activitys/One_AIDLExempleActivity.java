@@ -21,7 +21,7 @@ import wcy.godinsec.wcy_dandan.appbase.BaseActivity;
  * QQ    ：837513007
  * Function：
  */
-public class One_AIDLActivity extends BaseActivity {
+public class One_AIDLExempleActivity extends BaseActivity {
     private ServiceConnection mServiceConnection;
     private IWcyAidl mIWcyAidl;
     private Intent mIntent;

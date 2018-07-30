@@ -33,7 +33,7 @@ import wcy.godinsec.wcy_dandan.views.customview.CustomProgressBar;
  * QQ    ：837513007
  * Function：
  */
-public class DownLoadActivity extends BaseActivity<IDownLoadView, DownLoadPresenter> implements IDownLoadView {
+public class DownLoadExempleActivity extends BaseActivity<IDownLoadView, DownLoadPresenter> implements IDownLoadView {
     @BindView(R.id.rv_downapp_list)
     RecyclerView mRvDownAppList;
     private DownLoadEntity mDownLoadEntity;
@@ -55,8 +55,8 @@ public class DownLoadActivity extends BaseActivity<IDownLoadView, DownLoadPresen
     }
 
     @Override
-    protected void initViews() {
-        super.initViews();
+    protected void initialize() {
+        super.initialize();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRvDownAppList.setLayoutManager(linearLayoutManager);
@@ -70,7 +70,7 @@ public class DownLoadActivity extends BaseActivity<IDownLoadView, DownLoadPresen
 
     @Override
     public void getGameSuccess(ArrayList<DownLoadEntityResponse> gameList) {
-        mAdapter = new CommonRecyclerViewAdapter<DownLoadEntityResponse>(this, R.layout.item_task, gameList) {
+        mAdapter = new CommonRecyclerViewAdapter<DownLoadEntityResponse>(this, R.layout.item_task, gameList,null) {
             @Override
             public void conver(final CommonViewHolder viewHodler, final DownLoadEntityResponse data) {
                 boolean isInstalled = false;
@@ -108,7 +108,7 @@ public class DownLoadActivity extends BaseActivity<IDownLoadView, DownLoadPresen
                     @Override
                     public void onClick(View v) {
                         if (final_Installed) {
-                            AppUtils.startTagActivity(DownLoadActivity.this, downLoadEntity.getPackage_Name());
+                            AppUtils.startTagApp(DownLoadExempleActivity.this, downLoadEntity.getPackage_Name());
                             return;
                         }
                         if (downLoadEntity == null){

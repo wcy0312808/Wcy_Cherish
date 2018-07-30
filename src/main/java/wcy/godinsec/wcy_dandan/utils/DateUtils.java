@@ -49,7 +49,7 @@ public class DateUtils {
 //        dataChangebean.setEndTime(endDate);
 //        dataChangebean.setStartTime(beginDate);
 //        dataChangebean.setToday(dataFormatString());
-        BeanToString.getInstance().putBean(WcyApplication.getInstance(), "refreshAds", dataList);
+        BeanToStringUtils.getInstance(WcyApplication.getInstance()).putBean(WcyApplication.getInstance(), "refreshAds", dataList);
     }
 
     /**

@@ -20,11 +20,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.leakcanary.RefWatcher;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 import wcy.godinsec.wcy_dandan.R;
 import wcy.godinsec.wcy_dandan.appbase.BaseActivity;
+import wcy.godinsec.wcy_dandan.application.WcyApplication;
 import wcy.godinsec.wcy_dandan.test.aimator.CharEvaluator;
+import wcy.godinsec.wcy_dandan.utils.BeanToStringUtils;
+import wcy.godinsec.wcy_dandan.utils.DisplayUtil;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 
 /**
@@ -34,7 +39,7 @@ import wcy.godinsec.wcy_dandan.utils.LogUtils;
  * QQ    ：837513007
  * Function：
  */
-public class AnimationActivity extends BaseActivity {
+public class AnimationExempleActivity extends BaseActivity {
     @BindView(R.id.tween_scale)
     Button mTweenScale;
     @BindView(R.id.tween_translate)
@@ -97,6 +102,14 @@ public class AnimationActivity extends BaseActivity {
         ObjectAnimator animator = (ObjectAnimator) AnimatorInflater.loadAnimator(this, R.animator.animator_translationy);
         animator.setTarget(mImageAnimation);
         animator.start();
+
+
+        BeanToStringUtils.getInstance(this).getBean(this,"yang","");
+
+        DisplayUtil.dip2px(this,20);
+
+        LeakThread leakThread = new LeakThread();
+        leakThread.start();
 //
 //        //颜色Evaluator
 //        colorEvaluator();
@@ -385,4 +398,22 @@ public class AnimationActivity extends BaseActivity {
         });
     }
 
+
+    class LeakThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(6 * 60 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = WcyApplication.getRefWatcher(WcyApplication.getInstance());
+        refWatcher.watch(WcyApplication.getInstance());
+    }
 }

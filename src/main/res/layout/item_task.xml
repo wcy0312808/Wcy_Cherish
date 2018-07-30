@@ -46,9 +46,18 @@
         android:layout_toRightOf="@+id/iv_app_logo"
         android:maxWidth="200dp"
         android:textColor="#999999"
-        android:textSize="9.67sp"/>
+        android:textSize="15sp"/>
 
+
+    <CheckBox
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <wcy.godinsec.wcy_dandan.views.customview.CustomProgressBar
+        android:visibility="gone"
         android:id="@+id/progress_bar"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="72dp"

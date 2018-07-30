@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.lang.ref.WeakReference;
+import java.util.UUID;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -17,6 +18,7 @@ import okhttp3.ResponseBody;
 import wcy.godinsec.wcy_dandan.application.Constance;
 import wcy.godinsec.wcy_dandan.db.DownLoadSQLManager;
 import wcy.godinsec.wcy_dandan.utils.AppUtils;
+import wcy.godinsec.wcy_dandan.utils.FileUtils;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 
 /**
@@ -29,28 +31,30 @@ import wcy.godinsec.wcy_dandan.utils.LogUtils;
 public class DownLoadObserver implements Observer<ResponseBody>, OnDownLoadProgressListener {
     private WeakReference<DownLoadListener> mSubNextListener;  //当前请求回调的状态值，主要是掉给别人用的
     private DownLoadEntity mDownLoadEntity;                    //需要保存的各种数据
-    private boolean isDownLoad = true;                        //是否允许写入
-
-    public boolean isDownLoad() {
-        return isDownLoad;
-    }
-
-    public void setDownLoad(boolean downLoad) {
-        isDownLoad = downLoad;
-    }
-
-    public DownLoadEntity getDownLoadEntity() {
-        return mDownLoadEntity;
-    }
+    private boolean downloadSuccess = false;                 //是否下载成功，这里是利用是否写入完成来实现的
 
 //    private Disposable mDisposable;
 //    public Disposable getDisposable() {
 //        return mDisposable;
 //    }
 
-    public DownLoadObserver(DownLoadEntity downLoadEntity) {
+
+    //设置暂停下载
+    public void setPuaseDownLoad() {
+        FileUtils.setDownLoad(false);
+        if (mSubNextListener.get() != null) {
+            mSubNextListener.get().onPuaseDown();
+        }
+    }
+
+    public DownLoadEntity getDownLoadEntity() {
+        return mDownLoadEntity;
+    }
+
+
+    public DownLoadObserver(DownLoadEntity downLoadEntity, DownLoadListener downLoadListener) {
         mDownLoadEntity = downLoadEntity;
-        this.mSubNextListener = new WeakReference<DownLoadListener>(downLoadEntity.getDownLoadListener());
+        this.mSubNextListener = new WeakReference<DownLoadListener>(downLoadListener);
     }
 
 
@@ -60,40 +64,32 @@ public class DownLoadObserver implements Observer<ResponseBody>, OnDownLoadProgr
         if (mSubNextListener.get() != null) {
             mSubNextListener.get().onStartDown();
             mDownLoadEntity.setDown_State(Constance.DOWN_STATE_BEING); //开始
-//            mDisposable = d;
+//          mDisposable = d;
         }
     }
 
 
+    /**
+     * 请求成功，获取返回体并转换成流写入文件中
+     */
     @Override
     public void onNext(final ResponseBody body) {
         LogUtils.e("onNext= = " + mDownLoadEntity.toString());
+
         if (mSubNextListener.get() != null) {
-            writeCache(body, mDownLoadEntity);
+            //写入成功或者写入失败都会有一个返回值，通过此返回值来判断是否可以安装
+            downloadSuccess = FileUtils.writeRandomFile(body, mDownLoadEntity, mSubNextListener.get());
         }
     }
-
-
-/**
- * 将onNext方法中的结果直接交给view处理
- *
- * @param 对下载的任务统一处理
- * @param e
- * <p>
- * 对下载的任务统一处理
- * @param e
- */
 
 
     /**
      * 对下载的任务统一处理
-     *
-     * @param e
      */
     @Override
     public void onError(Throwable e) {
         LogUtils.e("onError= = " + e.toString());
-        DownLoadManager.getInstance().stopDown(this);
+        DownLoadManager.getInstance().pauseDownSub(this);
         if (mSubNextListener.get() != null) {
             mSubNextListener.get().onErrorDown(e);
         }
@@ -104,14 +100,7 @@ public class DownLoadObserver implements Observer<ResponseBody>, OnDownLoadProgr
     @Override
     public void onComplete() {
         LogUtils.e("onComplete= = " + mDownLoadEntity.toString());
-        if (mSubNextListener.get() != null) {
-            mSubNextListener.get().onCompleteDown();
-        }
         mDownLoadEntity.setDown_State(Constance.DOWN_STATE_SUCCESS);
-        //下载完成安装apk
-        if (isDownLoad) {
-            AppUtils.install(mDownLoadEntity.getSave_Path(), mDownLoadEntity.getApp_Name());
-        }
     }
 
 
@@ -124,12 +113,12 @@ public class DownLoadObserver implements Observer<ResponseBody>, OnDownLoadProgr
      */
     @Override
     public void updateDownLoadProgress(long read, long count, boolean done) {
-        LogUtils.e("==========updateDownLoadProgress===========");
         if (mDownLoadEntity.getDown_App_Size() > count) {
             read = mDownLoadEntity.getDown_App_Size() - count + read;
         } else {
             mDownLoadEntity.setDown_App_Size(count);
         }
+
 
         mDownLoadEntity.setDown_Progress(read);
 
@@ -153,82 +142,11 @@ public class DownLoadObserver implements Observer<ResponseBody>, OnDownLoadProgr
         }
     }
 
-    /**
-     * RandomAccessFile 写入文件
-     *
-     * @param body 断点续传时，每次请求回来的body是剩余的长度
-     */
-    private boolean writeCache(ResponseBody body, final DownLoadEntity downLoadEntity) {
-        InputStream inputStream = null;
-        RandomAccessFile raf = null;
-        File file = null;
-        try {
-            byte[] fileReader = new byte[1024 * 8];
-            file = new File(downLoadEntity.getSave_Path());
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            long fileSize = body.contentLength();
-            //将状态值改为开始下载并保存到数据库中
-            downLoadEntity.setDown_State(Constance.DOWN_STATE_BEING);
-            //断点续传时，每次请求回来的body是剩余的长度，所以需要再加上已经下载的长度
-            downLoadEntity.setDown_App_Size(fileSize + downLoadEntity.getDown_Progress());
-            DownLoadSQLManager.getInstance().updateStatusAndSizeByPkg(downLoadEntity);
 
-            long currentFileLength = downLoadEntity.getDown_Progress(); //文件的大小长度，简单来说也就是已经下载的长度
-
-            inputStream = body.byteStream();
-            raf = new RandomAccessFile(downLoadEntity.getSave_Path(), "rw");
-            raf.seek(downLoadEntity.getDown_Progress());  //从文件的当前长度开始下载
-            int read;
+    //统一处理结果
+    private void disposeResult() {
+//        DownLoadManager.getInstance().deleteDownSub(mDownLoadEntity.getApp_Link());
 
 
-            while ((read = inputStream.read(fileReader)) != -1) {
-                raf.write(fileReader, 0, read);  //写入
-                currentFileLength += read;       //记录写入的当前值
-
-                //更新数据库
-                downLoadEntity.setDown_Progress(currentFileLength);
-                DownLoadSQLManager.getInstance().updateProgress(downLoadEntity);
-                if (mSubNextListener.get() != null) {
-                   /*接受进度消息，造成UI阻塞，如果不需要显示进度可去掉实现逻辑，减少压力*/
-                    final long final_CurrentFileLength = currentFileLength;
-                    Observable.just(read)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribeOn(Schedulers.io())
-                            .subscribe(new Consumer<Integer>() {
-                                @Override
-                                public void accept(Integer integer) throws Exception {
-                                    //如果当前状态是不可见或者是停止状态不需要回调这个接口来刷新进度条
-                                    if (downLoadEntity.getDown_State() == Constance.DOWN_STATE_PAUSE || downLoadEntity.getDown_State() == Constance.DOWN_STATE_STOP)
-                                        return;
-                                    mSubNextListener.get().updateProgress(final_CurrentFileLength, downLoadEntity.getDown_App_Size());
-                                }
-                            });
-                }
-                LogUtils.e("fileSize = = " + fileSize + " currentFileLength = = " + currentFileLength + "  read = " + read);
-                if (!isDownLoad) {//暂停下载
-                    LogUtils.e("停止写入 = Down_Progress() = " + downLoadEntity.getDown_Progress());
-                    break;
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            LogUtils.e("Exception " + e);
-            DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(), downLoadEntity.getInstall_Status());
-            isDownLoad = false;
-            return false;
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (raf != null) {
-                    raf.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/accent_bottom_navigation"
+                android:orientation="vertical">
+
+    <wcy.godinsec.wcy_dandan.views.customview.TouchViewGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="70dp"
+        android:background="@color/blue"></wcy.godinsec.wcy_dandan.views.customview.TouchViewGroup>
+</RelativeLayout>

@@ -60,7 +60,7 @@ public class DownLoadPresenter extends BasePresenter<IDownLoadView> {
     }
 
     public void setProgressState(CustomProgressBar progressBar, int downStatus, int progress) {
-        if (downStatus == Constance.DOWN_STATE_NOT) {//未下载
+        if (downStatus == Constance.DOWN_STATE_NOT || downStatus == Constance.DOWN_STATE_STOP) {//未下载
             progressBar.setTextColor(Color.WHITE);
             progressBar.setText("下载");  //提示用户点击下载
             progressBar.setProgress(1000);// 下载未开始，全部填充
@@ -134,6 +134,7 @@ public class DownLoadPresenter extends BasePresenter<IDownLoadView> {
         }
     }
 
+
     //第一次下载APP
     public void startDownLoadApp(final CustomProgressBar progressBar, DownLoadEntityResponse data) {
         if (!NetWorkUtils.isNetworkAvailable(mContext) || (NetWorkUtils.netMode(mContext) == -1)) {
@@ -154,55 +155,50 @@ public class DownLoadPresenter extends BasePresenter<IDownLoadView> {
             downLoadEntity.setApp_Name(data.getName());
             downLoadEntity.setApp_sort(data.getSort());
             downLoadEntity.setDown_App_Size(data.getApp_size());
-            downLoadEntity.setDownLoadListener(new DownLoadListener() {
+            new Thread(new Runnable() {
                 @Override
-                public void onCompleteDown() {
-                    LogUtils.e("====onCompleteDown====");
-                    setProgressState(progressBar,Constance.DOWN_STATE_SUCCESS,1000);
+                public void run() {
+                    DownLoadManager.getInstance().startDown(new DownLoadObserver(downLoadEntity, new DownLoadListener() {
+                        @Override
+                        public void onCompleteDown() {
+                            LogUtils.e("====onCompleteDown====");
+                            setProgressState(progressBar, Constance.DOWN_STATE_SUCCESS, 1000);
+                        }
+
+                        @Override
+                        public void onStartDown() {
+                            LogUtils.e("====onStartDown====");
+                        }
+
+                        @Override
+                        public void onErrorDown(Throwable e) {
+                            LogUtils.e("====onErrorDown====");
+                            setProgressState(progressBar, Constance.DOWN_STATE_PAUSE, 1000);
+                        }
+
+                        @Override
+                        public void onPuaseDown() {
+                            LogUtils.e("====onPuaseDown====");
+                            setProgressState(progressBar, Constance.DOWN_STATE_PAUSE, 1000);
+                        }
+
+                        @Override
+                        public void onStopDown() {
+                            LogUtils.e("====onStopDown====");
+                            setProgressState(progressBar, Constance.DOWN_STATE_STOP, 0);
+                        }
+
+                        @Override
+                        public void updateProgress(long currentLength, long TotalLength) {
+                            setProgressState(progressBar, Constance.DOWN_STATE_BEING, (int) (currentLength * 1000 / TotalLength));
+                            if (currentLength == TotalLength) {
+                                setProgressState(progressBar, Constance.DOWN_STATE_SUCCESS, 1000);
+                            }
+                            LogUtils.e("====updateProgress====" + currentLength + "   ===   " + TotalLength);
+                        }
+                    }));
                 }
-
-                @Override
-                public void onStartDown() {
-                    LogUtils.e("====onStartDown====");
-                }
-
-                @Override
-                public void onErrorDown(Throwable e) {
-                    LogUtils.e("====onErrorDown====");
-                    setProgressState(progressBar,Constance.DOWN_STATE_PAUSE,1000);
-                }
-
-                @Override
-                public void onPuaseDown() {
-                    LogUtils.e("====onPuaseDown====");
-                    setProgressState(progressBar,Constance.DOWN_STATE_PAUSE,1000);
-                }
-
-                @Override
-                public void onStopDown() {
-                    LogUtils.e("====onStopDown====");
-                }
-
-                @Override
-                public void updateProgress(long currentLength, long TotalLength) {
-                    setProgressState(progressBar,Constance.DOWN_STATE_BEING, (int) (currentLength*1000/TotalLength));
-                    if (currentLength == TotalLength){
-                        setProgressState(progressBar,Constance.DOWN_STATE_SUCCESS,1000);
-                    }
-                    LogUtils.e("====updateProgress====" + currentLength +"   ===   "+TotalLength);
-                }
-
-
-            });
-            final DownLoadManager downLoadManager = DownLoadManager.getInstance();
-            if (!downLoadManager.getSubExist(data.getPackage_name())) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        downLoadManager.startDown(new DownLoadObserver(downLoadEntity));
-                    }
-                }).start();
-            }
+            }).start();
         }
     }
 

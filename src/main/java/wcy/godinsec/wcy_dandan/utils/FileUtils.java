@@ -6,14 +6,20 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import wcy.godinsec.wcy_dandan.application.Constance;
 import wcy.godinsec.wcy_dandan.db.DownLoadSQLManager;
 import wcy.godinsec.wcy_dandan.network.rxdownload.DownLoadEntity;
+import wcy.godinsec.wcy_dandan.network.rxdownload.DownLoadListener;
 
 /**
  * Auther：杨玉安 on 2017/12/15 15:31
@@ -23,6 +29,11 @@ import wcy.godinsec.wcy_dandan.network.rxdownload.DownLoadEntity;
  * Function：
  */
 public class FileUtils {
+    private static boolean isDownLoad = true;
+
+    public static void setDownLoad(boolean downLoad) {
+        isDownLoad = downLoad;
+    }
 
     //写到文件
     public static void createFileWithByte(byte[] bytes, String fileName) {
@@ -84,7 +95,6 @@ public class FileUtils {
      * @throws IOException
      */
     public static boolean writeCache(ResponseBody responseBody, DownLoadEntity mDownLoadEntity, boolean isCancel) {
-        LogUtils.e("==========" + mDownLoadEntity.getSave_Path() + "  isCannel == " + isCancel);
         FileChannel channelOut = null;
         RandomAccessFile randomAccessFile = null;
         MappedByteBuffer mappedBuffer = null;
@@ -144,7 +154,120 @@ public class FileUtils {
                 }
             }
         }
+    }
 
+    /**
+     * RandomAccessFile 写入文件
+     *
+     * @param body 断点续传时，每次请求回来的body是剩余的长度
+     */
+    public static boolean writeRandomFile(ResponseBody body, final DownLoadEntity downLoadEntity, final DownLoadListener downLoadListener) {
+        InputStream inputStream = null;
+        RandomAccessFile raf = null;
+        File file = null;
+        try {
+            file = new File(downLoadEntity.getSave_Path());
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+
+            //当前循环中读取的长度
+            int nowReadLength;
+            //剩余文件的总长度
+            long fileSize = body.contentLength();
+            //当前本地文件的大小长度，简单来说也就是已经下载的长度，当前是从数据库中查询出来的上次保存的长度
+            long localCurrentLength = downLoadEntity.getDown_Progress();
+
+
+            //读取字节时的缓存数组
+            byte[] fileReader = new byte[1024 * 8];
+            //将文件读入写入流中
+            inputStream = body.byteStream();
+            //利用RanddomAccessFile工具类写入文件，这个工具类可以实现断点续传，依靠下面的方法
+            raf = new RandomAccessFile(downLoadEntity.getSave_Path(), "rw");
+            //从文件的当前长度开始下载，是定位到文件指针在文件中的位置，是一个绝对定位，有别于skipBytes(),是在文件中跳过给定数量的字节，是相对的定位
+            raf.seek(downLoadEntity.getDown_Progress());
+
+
+            //将状态值改为开始下载并保存到数据库中
+            downLoadEntity.setDown_State(Constance.DOWN_STATE_BEING);
+            //断点续传时，每次请求回来的body是剩余的长度，所以需要再加上已经下载的长度
+            downLoadEntity.setDown_App_Size(fileSize + downLoadEntity.getDown_Progress());
+            DownLoadSQLManager.getInstance().updateStatusAndSizeByPkg(downLoadEntity);
+
+
+            while ((nowReadLength = inputStream.read(fileReader)) != -1) {
+                raf.write(fileReader, 0, nowReadLength);  //写入
+                localCurrentLength += nowReadLength;       //记录写入的当前值
+
+                //时刻更新数据库中该任务写入的进度
+                downLoadEntity.setDown_Progress(localCurrentLength);
+                DownLoadSQLManager.getInstance().updateProgress(downLoadEntity);
+
+
+                if (downLoadListener != null) {
+                   /*接受进度消息，造成UI阻塞，如果不需要显示进度可去掉实现逻辑，减少压力*/
+                    final long final_CurrentFileLength = localCurrentLength;
+                    Observable.just(nowReadLength)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(new Consumer<Integer>() {
+                                @Override
+                                public void accept(Integer integer) throws Exception {
+                                    //如果当前状态是不可见或者是停止状态不需要回调这个接口来刷新进度条
+                                    if (downLoadEntity.getDown_State() == Constance.DOWN_STATE_PAUSE || downLoadEntity.getDown_State() == Constance.DOWN_STATE_STOP)
+                                        return;
+
+                                    downLoadListener.updateProgress(final_CurrentFileLength, downLoadEntity.getDown_App_Size());
+                                }
+                            });
+                } else {
+                    //回掉接口被系统清除，说明内存已经不足或者其他情况，这里停止下载
+                    return false;
+                }
+
+                LogUtils.e("fileSize = = " + fileSize + " currentFileLength = = " + localCurrentLength + "  read = " + nowReadLength);
+
+                //暂停下载
+                if (!isDownLoad) {
+                    LogUtils.e("停止写入 = Down_Progress() = " + downLoadEntity.getDown_Progress());
+                    return false;
+                }
+            }
+
+
+            return true;
+        } catch (Exception e) {
+            LogUtils.e("Exception " + e);
+            DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(), downLoadEntity.getInstall_Status());
+            isDownLoad = false;
+            return false;
+        } finally {
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (raf != null) {
+                    raf.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 将.temp改成.apk
+     *
+     * @param path
+     * @return
+     */
+    public static String renameFile(String path) {
+        File file = new File(path);
+        String newPath = path.substring(0, path.length() - 4) + "apk";
+        File newFile = new File(newPath);
+        file.renameTo(newFile);
+        return newPath;
     }
 
 }

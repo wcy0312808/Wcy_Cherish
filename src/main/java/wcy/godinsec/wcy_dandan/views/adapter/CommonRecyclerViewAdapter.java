@@ -6,14 +6,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import wcy.godinsec.wcy_dandan.interfaces.OnSelectAllListener;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 
 public abstract class CommonRecyclerViewAdapter<T> extends RecyclerView.Adapter<CommonViewHolder> {
-//    protected Map<Integer, CheckBoxTextBean> map = new HashMap<>();
+    //这个集合是用来针对于CheckBox这个控件在条目复用的时候防止错乱做处理的
     protected Map<Integer, Boolean> map = new HashMap<>();
     /**
      * 上下文
@@ -54,16 +57,38 @@ public abstract class CommonRecyclerViewAdapter<T> extends RecyclerView.Adapter<
      */
     boolean isChange = false;
 
+    private int mSelectNumber;
 
-    public CommonRecyclerViewAdapter(Context context, int layoutID, List<T> data) {
+    private OnSelectAllListener mOnSelectAllListener;
+
+
+    public CommonRecyclerViewAdapter(Context context, int layoutID, List<T> data, OnSelectAllListener onSelectAllListener) {
         this.mData = data;
         this.mContext = context;
         this.mLayoutID = layoutID;
-        for(int i=0;i<mData.size();i++)
-        {
-            map.put(i,false);
+        mOnSelectAllListener = onSelectAllListener;
+        mSelectNumber = 0;
+
+        //首先，每次初始化将所有的CheckBox的状态值设置成false，
+        for (int i = 0; i < mData.size(); i++) {
+            map.put(i, false);
         }
     }
+
+    public void allSelect(boolean select) {
+        if (select) {
+            mSelectNumber = 0;
+        }
+        for (int i = 0; i < mData.size(); i++) {
+            map.put(i, select);
+            if (select) {
+                mSelectNumber++;
+            } else {
+                mSelectNumber--;
+            }
+        }
+    }
+
 
     @Override
     public CommonViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -104,17 +129,25 @@ public abstract class CommonRecyclerViewAdapter<T> extends RecyclerView.Adapter<
         this.mResID = resID;
     }
 
-//    public void setCheckBoxState(int position,CheckBoxTextBean state)
-//    {
-//        LogUtils.e("当前是第 "+position+" 条数据,当前CheckBox的状态值是"+state);
-//        map.put(position, state);
-//    }
-
-    public void setCheckBoxState(int position,Boolean state)
-    {
-        LogUtils.e("当前是第 "+position+" 条数据,当前CheckBox的状态值是"+state);
+    //在当前页面，那个item的状态值改变了就重新赋值，
+    // 我们需要标记的就是当RecycleView重新展示这个Item的时候我们需要从这个集合中取值，所有的都是.
+    // 这样才能保证不被复用错乱
+    public void setCheckBoxState(int position, Boolean state) {
         map.put(position, state);
+        if (state) {
+            mSelectNumber++;
+            if (mSelectNumber == mData.size()) {
+                mOnSelectAllListener.changeState(true);
+            }
+        } else {
+            mSelectNumber--;
+            if (mData.size() - mSelectNumber == 1)
+                mOnSelectAllListener.changeState(false);
+        }
+        LogUtils.e("当前是第 " + position + " 条数据,当前CheckBox的状态值是" + state);
+        LogUtils.e("mSelectNumber == ==  " + mSelectNumber + " mData.size() == ==  " + mData.size());
     }
+
 
     public void removeItem(int position) {
         mData.remove(position);

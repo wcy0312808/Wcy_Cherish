@@ -23,12 +23,29 @@ import wcy.godinsec.wcy_dandan.utils.LogUtils;
  * Function：
  */
 public class DownLoadManager {
-    private volatile static DownLoadManager sDownLoadManager;  //volatile 表示不会被编译器认定为一个。
-    private String mPath = Environment.getExternalStorageDirectory() + File.separator + "cheirse";
-    private HashMap<String, DownLoadObserver> subMap;    //每个下载包名都对应了一个DownObserver ,其中包含当前下载过程中的所有的信息
+    //volatile 表示不会被编译器认定为一个。
+    private volatile static DownLoadManager sDownLoadManager;
+    //每个下载路径都对应了一个DownObserver,其中包含当前下载过程中的所有的信息
+    private HashMap<String, DownLoadObserver> downSubMap;
+
+    //一个线程的缓存副本，可以针对每一个线程存储一些必要资源，避免了多线程时线程不安全的问题,对象为app的下载地址
+    private ThreadLocal<String> mThreadLocal = new ThreadLocal<>();
+
+    public void setThreadUrl(String url) {
+        mThreadLocal.set(url);
+    }
+
+    public String getThreadUrl() {
+        return mThreadLocal.get();
+    }
+
+    public void removeThreadUrl() {
+        mThreadLocal.remove();
+    }
+
 
     private DownLoadManager() {
-        subMap = new LinkedHashMap<>();
+        downSubMap = new LinkedHashMap<>();
     }
 
     public static DownLoadManager getInstance() {
@@ -49,19 +66,26 @@ public class DownLoadManager {
         DownLoadEntity downLoadEntity = observer.getDownLoadEntity();
         if (downLoadEntity == null) return;
 
-        String savePath = mPath + File.separator + AppUtils.MD5(downLoadEntity.getApp_Name()) + File.separator + downLoadEntity.getApp_Name() + ".temp";//外部存储
+        if (getSub(downLoadEntity.getApp_Name()) != null) return;      //表示当前正在下载
+        downSubMap.put(downLoadEntity.getApp_Link(), observer);         /*记录回调sub*/
+
+
+        String apkTempName = AppUtils.MD5(downLoadEntity.getApp_Link()) + ".cheirse";    //混淆名称，不再是以APK结尾的，这样可以避免未下载完全时就打开的情况
+        String savePath = Constance.mDownLoadPath + File.separator + apkTempName;       //外部存储
         LogUtils.e("===savePath===" + savePath);
 
         //保存的地址文件是否存在，不存在就直接创建
-        File filePath = new File(mPath);
+        File filePath = new File(Constance.mDownLoadPath);
         if (!filePath.exists()) {
             filePath.mkdirs();
         }
         File file = new File(savePath);
+
         LogUtils.e("length = " + file.length()
                 + " Down_App_Size= " + downLoadEntity.getDown_App_Size()
                 + " Down_Progress= " + downLoadEntity.getDown_Progress()
                 + "   " + (file.exists() && file.isFile()));
+
         if (file.exists() && file.isFile()) {
             //文件长度大于0说明不为空，要下载的APP长度 == 文件长度 说明完整写入了
             if (file.length() > 0 && downLoadEntity.getDown_App_Size() == file.length()) {
@@ -75,10 +99,6 @@ public class DownLoadManager {
                 e.printStackTrace();
             }
         }
-
-        if (getSub(downLoadEntity.getApp_Name()) != null) return; //表示当前正在下载
-        subMap.put(downLoadEntity.getApp_Name(), observer);  /*记录回调sub*/
-        observer.setDownLoad(true);   //允许写入
 
         //当前文件长度大于记录的下载长度，有可能是极个别字节写入时未记载到数据库中，这里我们以文件的长度为主
         if (file.length() > downLoadEntity.getDown_Progress()) {
@@ -96,95 +116,89 @@ public class DownLoadManager {
     }
 
 
-    public void pause(final DownLoadObserver observer) {
+    public void pauseDownSub(final DownLoadObserver observer) {
         DownLoadEntity downLoadEntity = observer.getDownLoadEntity();
         if (downLoadEntity == null) return;
-        observer.setDownLoad(false);
+        observer.setPuaseDownLoad();
 
         LogUtils.e("停止下载 = Down_Progress() = " + downLoadEntity.getDown_Progress());
-        DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(),Constance.DOWN_STATE_PAUSE);
-        downLoadEntity.getDownLoadListener().onPuaseDown();
+        DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(), Constance.DOWN_STATE_PAUSE);
 
 
-        removeSub(observer);
+        removeDownSub(observer);
     }
 
 
     /**
      * 停止下载
      */
-    public void stopDown(final DownLoadObserver observer) {
+    public void stopDownSub(final DownLoadObserver observer) {
         DownLoadEntity downLoadEntity = observer.getDownLoadEntity();
         if (downLoadEntity == null) return;
-        observer.setDownLoad(false);
+        observer.setPuaseDownLoad();
 
-        downLoadEntity.getDownLoadListener().onStopDown();
-        DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(),Constance.DOWN_STATE_STOP);
 
-        removeSub(observer);
+//        downLoadEntity.getDownLoadListener().onStopDown();  //停止下载在界面上应该是直接清空，然后变成初始值，但目前暂未考虑到有该种情况
+        DownLoadSQLManager.getInstance().updateProgressAndStatus(downLoadEntity.getPackage_Name(), (int) downLoadEntity.getDown_Progress(), Constance.DOWN_STATE_STOP);
+
+        removeDownSub(observer);
         /**同步数据库*/
     }
 
 
-    public void stopAllDown() {
-        Collection<DownLoadObserver> values = subMap.values();
+    public void stopAllDownSub() {
+        Collection<DownLoadObserver> values = downSubMap.values();
         for (DownLoadObserver observer : values) {
-            stopDown(observer);
+            stopDownSub(observer);
         }
-        subMap.clear();
+        downSubMap.clear();
     }
 
 
-    public void pauseAllDown() {
-        Collection<DownLoadObserver> values = subMap.values();
+    public void pauseAllDownSub() {
+        Collection<DownLoadObserver> values = downSubMap.values();
         for (DownLoadObserver observer : values) {
-            pause(observer);
+            pauseDownSub(observer);
         }
-        subMap.clear();
+        downSubMap.clear();
     }
 
 
-    public void deleteDown(DownLoadObserver observer) {
-        stopDown(observer);
-
-        /*同步数据库*/
-    }
-
-
-    private void removeSub(DownLoadObserver observer) {
+    private void removeDownSub(DownLoadObserver observer) {
         DownLoadEntity downLoadEntity = observer.getDownLoadEntity();
-        if (subMap != null && subMap.containsKey(downLoadEntity.getApp_Name())) {
-//            Disposable disposable = observer.getDisposable();
-//            if (disposable != null && !disposable.isDisposed()) {
-//                disposable.dispose();
-//            }
-            subMap.remove(downLoadEntity.getApp_Name());
+        if (downSubMap != null && downSubMap.containsKey(downLoadEntity.getApp_Link())) {
+            downSubMap.remove(downLoadEntity.getApp_Link());
         }
+
+        //一个猜测写法，目前没有证实
+//        Disposable disposable = observer.getDisposable();
+//        if (disposable != null && !disposable.isDisposed()) {
+//            disposable.dispose();
+//        }
     }
+
 
     /**
-     * 获取下载工具
+     * 获取下载中的任务实例
      *
-     * @param pkg
-     * @return
+     * @param appLink app的下载地址
      */
-    public DownLoadObserver getSub(String pkg) {
-        if (subMap != null && subMap.containsKey(pkg)) {
-            return subMap.get(pkg);
+    public DownLoadObserver getSub(String appLink) {
+        if (downSubMap != null && downSubMap.containsKey(appLink)) {
+            return downSubMap.get(appLink);
         } else {
             return null;
         }
     }
 
     /**
-     * 获取下载工具
+     * 获取当前下载实例的状态（是否正在下载）
      *
-     * @param pkg
-     * @return
+     * @param appLink
      */
-    public boolean getSubExist(String pkg) {
-        if (subMap != null && subMap.containsKey(pkg)) {
-            if (subMap.get(pkg) != null)
+    public boolean getSubExist(String appLink) {
+        if (downSubMap != null && downSubMap.containsKey(appLink)) {
+            if (downSubMap.get(appLink) != null)
                 return true;
         }
         return false;

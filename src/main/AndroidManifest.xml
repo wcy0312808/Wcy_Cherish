@@ -39,52 +39,52 @@
         android:theme="@style/AppTheme">
 
         <activity
-        android:name=".test.activitys.AnimationActivity"
-        android:screenOrientation="portrait">
-        <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-        </intent-filter>
+            android:name=".test.activitys.AnimationExempleActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
 
 
         <!--<activity-->
-            <!--android:name=".views.activitys.LauncherActivity"-->
-            <!--android:screenOrientation="portrait">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN"/>-->
-            <!--</intent-filter>-->
+        <!--android:name=".views.activitys.LauncherActivity"-->
+        <!--android:screenOrientation="portrait">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN"/>-->
+        <!--</intent-filter>-->
         <!--</activity>-->
         <!--<activity-->
-            <!--android:name=".views.activitys.AboutProjectActivity"-->
-            <!--android:screenOrientation="portrait">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN"/>-->
-            <!--</intent-filter>-->
+        <!--android:name=".views.activitys.AboutProjectActivity"-->
+        <!--android:screenOrientation="portrait">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN"/>-->
+        <!--</intent-filter>-->
         <!--</activity>-->
 
         <!--<activity-alias-->
-            <!--android:name=".ActivityAlias1"-->
-            <!--android:enabled="true"-->
-            <!--android:icon="@mipmap/umeng_push_notification_default_large_icon"-->
-            <!--android:label="@string/app_name"-->
-            <!--android:targetActivity=".views.activitys.LauncherActivity">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN"/>-->
-                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
-            <!--</intent-filter>-->
+        <!--android:name=".ActivityAlias1"-->
+        <!--android:enabled="true"-->
+        <!--android:icon="@mipmap/umeng_push_notification_default_large_icon"-->
+        <!--android:label="@string/app_name"-->
+        <!--android:targetActivity=".views.activitys.LauncherActivity">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN"/>-->
+        <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+        <!--</intent-filter>-->
         <!--</activity-alias>-->
 
         <!--<activity-alias-->
-            <!--android:name=".ActivityAlias2"-->
-            <!--android:enabled="false"-->
-            <!--android:icon="@mipmap/app_logo"-->
-            <!--android:label="cherise"-->
-            <!--android:targetActivity=".views.activitys.AboutProjectActivity">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN"/>-->
-                <!--<category android:name="android.intent.category.LAUNCHER"/>-->
-            <!--</intent-filter>-->
+        <!--android:name=".ActivityAlias2"-->
+        <!--android:enabled="false"-->
+        <!--android:icon="@mipmap/app_logo"-->
+        <!--android:label="cherise"-->
+        <!--android:targetActivity=".views.activitys.AboutProjectActivity">-->
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.MAIN"/>-->
+        <!--<category android:name="android.intent.category.LAUNCHER"/>-->
+        <!--</intent-filter>-->
         <!--</activity-alias>-->
 
 
@@ -161,7 +161,6 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
-
         <!--**************************Server**********************************-->
         <service
             android:name=".test.services.CounterService"
@@ -177,6 +176,21 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".service.CheriseAccessibilityService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            >
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config"
+                />
+        </service>
+
         <!--定义为在新进程中 只需要添加一个progress属性-->
         <service
             android:name=".test.services.AidlService"
@@ -185,7 +199,7 @@
 
 
         <!--**************************Receiver**********************************-->
-        <receiver android:name=".views.broadcastreceiver.DataChangeReceiver"/>
+        <receiver android:name=".broadcastreceiver.DataChangeReceiver"/>
         <receiver android:name=".test.broadcastreceiver.CountReceiver"/>
         <receiver android:name=".receiver.MonitorSysReceiver">
             <intent-filter android:priority="20">
@@ -197,6 +211,8 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".test.broadcastreceiver.CountReceiver"/>
+
+
     </application>
 
 

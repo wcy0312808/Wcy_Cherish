@@ -3,7 +3,6 @@ package wcy.godinsec.wcy_dandan.network.rxdownload;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import wcy.godinsec.wcy_dandan.network.RetrefitApi;
 
 /**
  * Auther：杨玉安 on 2017/9/30 17:40
@@ -21,7 +20,7 @@ public class DownLoadEntity  implements Parcelable{
     private long down_Progress;         /*下载长度*/
     private int down_State;              /*下载状态 0 开始下载  1下载中 2 暂停 3 停止  4错误  5完成*/
     private int install_Status;         /*当前apk的状态  0未下载  1未安装 2 正在安装  3已经安装*/
-    private DownLoadListener mDownLoadListener;
+//    private DownLoadListener mDownLoadListener;
     private String app_Md5;
     private int install_end_Time;
     private int install_start_Time;
@@ -146,13 +145,13 @@ public class DownLoadEntity  implements Parcelable{
         this.install_Status = install_Status;
     }
 
-    public DownLoadListener getDownLoadListener() {
-        return mDownLoadListener;
-    }
-
-    public void setDownLoadListener(DownLoadListener downLoadListener) {
-        mDownLoadListener = downLoadListener;
-    }
+//    public DownLoadListener getDownLoadListener() {
+//        return mDownLoadListener;
+//    }
+//
+//    public void setDownLoadListener(DownLoadListener downLoadListener) {
+//        mDownLoadListener = downLoadListener;
+//    }
 
     public String getApp_Md5() {
         return app_Md5;
@@ -205,7 +204,6 @@ public class DownLoadEntity  implements Parcelable{
                 ", down_Progress=" + down_Progress +
                 ", down_State=" + down_State +
                 ", install_Status=" + install_Status +
-                ", mDownLoadListener=" + mDownLoadListener +
                 ", app_Md5='" + app_Md5 + '\'' +
                 ", install_end_Time=" + install_end_Time +
                 ", install_start_Time=" + install_start_Time +

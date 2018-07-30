@@ -9,14 +9,14 @@
         <item name="android:windowNoTitle">true</item>
 
         <!-- 这个属性则是标题栏的颜色在5.0以后直接可以实现沉浸式状态栏的效果 -->
-        <item name="colorPrimaryDark">@color/orange</item>
+        <item name="colorPrimaryDark">@color/blue</item>
         <!--actiinbar的属性颜色-->
-        <item name="colorPrimary">@color/orange</item>
+        <item name="colorPrimary">@color/blue</item>
         <!--toolbar中CheckBox的颜色改变颜色-->
-        <item name="colorAccent">@color/orange</item>
-        <!--&lt;!&ndash;设置菜单那三个圆点显示白色&ndash;&gt;-->
-        <!--<item name="android:textColorSecondary">@color/white</item>-->
-        <!--<item name="android:textColorPrimary">@color/white</item>-->
+        <item name="colorAccent">@color/blue</item>
+        <!--设置菜单那三个圆点显示白色-->
+        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorPrimary">@color/white</item>
         <!--&lt;!&ndash;设置背景为&ndash;&gt;-->
         <item name="android:windowBackground">@color/colorActivityBackground</item>
     </style>

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import wcy.godinsec.wcy_dandan.R;
+import wcy.godinsec.wcy_dandan.interfaces.OnSelectAllListener;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 import wcy.godinsec.wcy_dandan.views.customview.CustomProgressBar;
 
@@ -26,13 +27,14 @@ import wcy.godinsec.wcy_dandan.views.customview.CustomProgressBar;
  * @日期 : 2017/2/5 0005 09:42
  */
 public class CommonViewHolder extends RecyclerView.ViewHolder {
-    private  Context mContext;
+    private Context mContext;
     /**
      * 使用集合来存储item上的控件
      */
     private SparseArray<View> mViewList;
 
-    /**maF
+    /**
+     * maF
      * 加载item的布局
      */
     private View mConvertView;
@@ -83,7 +85,7 @@ public class CommonViewHolder extends RecyclerView.ViewHolder {
         //将布局ID转化为视图
         View itemView = LayoutInflater.from(context).inflate(layoutID, parent, false);
         //实例化当前ViewHolder
-        CommonViewHolder viewHolder = new CommonViewHolder(context,itemView);
+        CommonViewHolder viewHolder = new CommonViewHolder(context, itemView);
         //返回
         return viewHolder;
     }
@@ -140,31 +142,10 @@ public class CommonViewHolder extends RecyclerView.ViewHolder {
 
     public CommonViewHolder setCheckBox(int viewID) {
         final CheckBox checkBox = getView(viewID);
-//        checkBox.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                LogUtils.e("当前是第"+getLayoutPosition()+"条数据");
-//                if(mAdapter.map.containsKey(getLayoutPosition()))
-//                {
-//                    checkBox.setChecked(false);
-//                    mAdapter.map.remove(getLayoutPosition());
-//                }else {
-//                    checkBox.setChecked(true);
-//                    mAdapter.map.put(getLayoutPosition(),mAdapter.mData.get(getLayoutPosition()));
-//                }
-//            }
-//        });
-//        if(mAdapter.map.get(getLayoutPosition()) != null)
-//        {
-//            checkBox.setChecked(true);
-//        }else {
-//            checkBox.setChecked(false);
-//        }
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                LogUtils.e("当前是第"+getLayoutPosition()+"条数据,当前CheckBox的状态值是"+isChecked);
-                mAdapter.setCheckBoxState(getLayoutPosition(), isChecked);
+            public void onClick(View v) {
+                mAdapter.setCheckBoxState(getLayoutPosition(), checkBox.isChecked());
             }
         });
         checkBox.setChecked((Boolean) mAdapter.map.get(getLayoutPosition()));
@@ -234,6 +215,7 @@ public class CommonViewHolder extends RecyclerView.ViewHolder {
 
     /**
      * 条目子布局的点击事件
+     *
      * @param viewID
      * @param listener
      * @return
@@ -254,7 +236,6 @@ public class CommonViewHolder extends RecyclerView.ViewHolder {
     public void regist(CommonRecyclerViewAdapter adapter) {
         this.mAdapter = adapter;
     }
-
 
 
     public interface OnItemClickLisenter {

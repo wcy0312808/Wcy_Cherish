@@ -26,6 +26,8 @@
     <string name="memory_full_not_run">内存爆满 没有空间运行啦，先清理一下内存吧</string>
     <string name="memory_full_not_download">内存爆满 没有空间下载啦，先清理一下内存吧</string>
     <string name="net_error">网络异常,请检查网络</string>
+    <string name="accessibility_tip">[省心装]功能能够免去应用安装过程中的繁琐确认。无需一直盯着手机，应用帮助您自动点击所需要的按钮以简化您的操作。
+        \n\n提示：开启时，您会收到关于隐私风险的例行提示，本应用利用辅助功能仅用作屏幕模拟点击，请您放心使用。</string>
 
     <string name="large_text">
         爱吖妹纸数据来源于代码家的干货集中营,那么多完整的App,你选择了我，这是我的幸运。

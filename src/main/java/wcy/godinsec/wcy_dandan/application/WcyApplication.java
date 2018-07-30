@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.media.projection.MediaProjectionManager;
+import android.text.TextUtils;
 
 import com.baidu.mapapi.SDKInitializer;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -14,6 +15,7 @@ import com.umeng.commonsdk.UMConfigure;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
 
+import wcy.godinsec.wcy_dandan.utils.AppUtils;
 import wcy.godinsec.wcy_dandan.utils.UmengPushUtils;
 
 
@@ -28,12 +30,19 @@ public class WcyApplication extends Application {
     private static Context mApplicationContent;
     private UmengPushUtils mUmengPushUtils; //实例化友盟推送的工具类
     public static int result = 0;            //请求录制屏幕的返回码
-    public static Intent intent = null;     //请求录制屏幕的返回实体
+    public static Intent intent = null;      //请求录制屏幕的返回实体
+
 
     private RefWatcher refWatcher;          //添加LeakCanary打包时记得注释掉
+    //基类Activity中的Destory引用，全局观测
+    public static RefWatcher getRefWatcher(Context context) {
+        WcyApplication application = (WcyApplication) context.getApplicationContext();
+        return application.refWatcher;
+    }
 
     //友盟分享各个平台的配置
-    static {//微信
+    static {
+        //微信
         PlatformConfig.setWeixin("wxdc1e388c3822c80b", "3baf1193c85774b3fd9d18447d76cab0");
         //新浪微博(第三个参数为回调地址)
         PlatformConfig.setSinaWeibo("2671053344", "6e134125c38172c8f9c4e4f5e41326b0", "http://sns.whalecloud.com/sina2/callback");
@@ -42,9 +51,12 @@ public class WcyApplication extends Application {
     }
 
 
-    public static RefWatcher getRefWatcher(Context context) {
-        WcyApplication application = (WcyApplication) context.getApplicationContext();
-        return application.refWatcher;
+
+    private RefWatcher setupLeakCanary() {
+        if (LeakCanary.isInAnalyzerProcess(this)) {
+            return RefWatcher.DISABLED;
+        }
+        return LeakCanary.install(this);
     }
 
 
@@ -57,10 +69,12 @@ public class WcyApplication extends Application {
         super.onCreate();
         //获取Application的上下文
         mApplicationContent = this;
+        //LeakCanary的初始化
+        refWatcher = setupLeakCanary();
+
+
         //初始化Fresco
         Fresco.initialize(mApplicationContent);
-
-
         //初始化友盟分享sdk
         UMShareAPI.get(this);
         //初始化友盟推送sdk
@@ -75,18 +89,19 @@ public class WcyApplication extends Application {
          *  * 参数5:Push推送业务的secret，需要集成Push功能时必须传入Push的secret，否则传空
          */
         UMConfigure.init(this, UMConfigure.DEVICE_TYPE_PHONE, "64712ee9a5a98ae583a4a49eae3dfba8");
-
         //当应用在后台运行超过30秒（默认）再回到前端，将被认为是两个独立的session(启动)
         MobclickAgent.setSessionContinueMillis(30000);
-
         //如果开发者调用kill或者exit之类的方法杀死进程，请务必在此之前调用
         MobclickAgent.onKillProcess(this);
-
         //初始化百度地图sdk
 //        SDKInitializer.initialize(mApplicationContent);
 
-        //LeakCanary的初始化
-        refWatcher = LeakCanary.install(this);
+        //获取到当前app进程的进程名称，判断进程名，保证只有主进程运行
+        String processName = AppUtils.getProcessName();
+        if (!TextUtils.isEmpty(processName) && processName.equals(this.getPackageName())) {
+            //在这里进行主进程初始化逻辑操作
+
+        }
     }
 
 

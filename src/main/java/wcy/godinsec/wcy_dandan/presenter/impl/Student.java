@@ -15,6 +15,8 @@ public class Student {
     char sex = '男';
     private String phoneNum;
 
+
+    //**************构造方法***************//
     //（默认的构造方法）
     Student(String str) {
         LogUtils.e("(默认)的构造方法 s = " + str);
@@ -31,7 +33,7 @@ public class Student {
     }
 
     //有一个参数的构造方法
-    public Student(String name, String sex) {
+    private Student(String name, String sex) {
         LogUtils.e("姓名 String ：" + name + " 性别 : " + sex);
     }
 
@@ -49,6 +51,22 @@ public class Student {
     private Student(int age) {
         LogUtils.e("私有的构造方法   年龄：" + age);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //**************成员方法***************//
     public void show1(String s) {
@@ -68,10 +86,25 @@ public class Student {
         return "abcd";
     }
 
+
+
+
+
+
+
+
+
     private static void main(String[] strings)
     {
         LogUtils.e("调用了，公共的，参数为可变长参数的值 = main" );
     }
+
+
+
+
+
+
+
 
     @Override
     public String toString() {

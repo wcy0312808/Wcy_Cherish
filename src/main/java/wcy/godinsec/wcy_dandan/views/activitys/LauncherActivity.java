@@ -1,6 +1,7 @@
 package wcy.godinsec.wcy_dandan.views.activitys;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PersistableBundle;
@@ -18,6 +19,8 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.zaaach.citypicker.CityPickerActivity;
 
+import java.util.HashMap;
+
 import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import wcy.godinsec.wcy_dandan.R;
@@ -26,8 +29,11 @@ import wcy.godinsec.wcy_dandan.application.Constance;
 import wcy.godinsec.wcy_dandan.application.WcyApplication;
 import wcy.godinsec.wcy_dandan.bean.EventBean;
 import wcy.godinsec.wcy_dandan.interfaces.OnPerfectClickListener;
+import wcy.godinsec.wcy_dandan.interfaces.OnSelectAllListener;
 import wcy.godinsec.wcy_dandan.utils.AppActivityUtils;
 import wcy.godinsec.wcy_dandan.utils.AppUtils;
+import wcy.godinsec.wcy_dandan.utils.DocumentPathUtils;
+import wcy.godinsec.wcy_dandan.utils.ImageUtils;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 import wcy.godinsec.wcy_dandan.utils.StateBarTranslucentUtils;
 import wcy.godinsec.wcy_dandan.utils.StatusBarUtil;
@@ -41,7 +47,8 @@ import wcy.godinsec.wcy_dandan.views.fragments.RecreationFragment;
  * E-meil：wcy0312808@163.com
  * WeChat：15110052956
  * QQ    ：837513007
- * Function：
+ * Function： 这个公司没有年终奖了，兄弟别指望了，也别来了，我都准备辞职了，
+ * 另外，这个项目有很多的意外*BUG*，让你防不胜防，都是历史遗留问题，我估计你也坚持不了多久的，拜拜，祝好！！
  */
 public class LauncherActivity extends BaseActivity {
 //    @BindView(R.id.toolbar)
@@ -58,14 +65,14 @@ public class LauncherActivity extends BaseActivity {
     // 保存用户按返回键的时间
     private long mExitTime = 0;
     private CircleImageView mCircleImageView;
-    private int REQUEST_CODE_PICK_CITY = 0x11;
+    private HashMap<String, OnSelectAllListener> mSelecHashMap = new HashMap<>();
+
+//    public void addSelectListener(OnSelectAllListener onSelectAllListener) {
+////        mSelecHashMap.put(flag, onSelectAllListener);
+//        onSelectAllListener.changeState(true);
+//    }
 
 //    private ActionBarDrawerToggle mToggle;
-
-    @Override
-    protected boolean isRegisterEventBus() {
-        return true;
-    }
 
     @Override
     protected int setContentlayout() {
@@ -73,13 +80,13 @@ public class LauncherActivity extends BaseActivity {
     }
 
     @Override
-    protected void initViews() {
-        super.initViews();
+    protected void initialize() {
+        super.initialize();
 //        mToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
 //        mToggle.syncState();
 //        mDrawerLayout.setDrawerListener(mToggle);
 
-        StatusBarUtil.setTranslucentForDrawerLayout(this,mDrawerLayout);
+        StatusBarUtil.setTranslucentForDrawerLayout(this, mDrawerLayout);
         StatusBarUtil.setColorNoTranslucentForDrawerLayout(this, mDrawerLayout, 0);      //将DrawLayout抽出后状态栏显示为透明色并去掉阴影部分
         mMyFragmentManager.onSwitchFragment(HomeFragment.class);
 
@@ -115,64 +122,21 @@ public class LauncherActivity extends BaseActivity {
             public boolean onTabSelected(int position, boolean wasSelected) {
                 switch (position) {
                     case 0:
-//                        mToolbar.setVisibility(View.GONE);
                         mMyFragmentManager.onSwitchFragment(HomeFragment.class);
                         return true;
                     case 1:
-//                        mToolbar.setVisibility(View.VISIBLE);
                         mMyFragmentManager.onSwitchFragment(AudioFragment.class);
                         return true;
                     case 2:
-//                        mToolbar.setVisibility(View.VISIBLE);
                         mMyFragmentManager.onSwitchFragment(AtlasFragment.class);
                         return true;
                     case 3:
-//                        mToolbar.setVisibility(View.VISIBLE);
                         mMyFragmentManager.onSwitchFragment(RecreationFragment.class);
                         return true;
                 }
                 return false;
             }
         });
-    }
-
-
-    @Override
-    protected void initDatas() {
-        super.initDatas();
-    }
-
-
-    @Override
-    public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            if ((System.currentTimeMillis() - mExitTime) > 2000) {
-                Toast.makeText(LauncherActivity.this, "再按一次退出程序哦", Toast.LENGTH_SHORT).show();
-                mExitTime = System.currentTimeMillis();
-            } else {
-                finish();
-            }
-        }
-    }
-
-
-    //重写onActivityResult方法
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_PICK_CITY && resultCode == RESULT_OK) {
-            if (data != null) {
-                String city = data.getStringExtra(CityPickerActivity.KEY_PICKED_CITY);
-                Toast.makeText(LauncherActivity.this, "您当前的定位城市是 " + city, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    protected void onEventBusMain(EventBean event) {
-        super.onEventBusMain(event);
-        LogUtils.e("===+onEventBusMain===");
     }
 
     private OnPerfectClickListener mListener = new OnPerfectClickListener() {
@@ -209,9 +173,57 @@ public class LauncherActivity extends BaseActivity {
                         case R.id.ll_personal_exit:
                             AppActivityUtils.getAppActivityUtils().AppExit(LauncherActivity.this);
                             break;
+                        case R.id.image_header:
+                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                            intent.setType("image/*");//设置需要寻找的类型
+                            startActivityForResult(intent, Constance.REQUEST_CODE_GET_HEARD_IMAGE);
+                            break;
                     }
                 }
             }, 260);
+
+           OnSelectAllListener selectAllListener = new OnSelectAllListener() {
+               @Override
+               public void changeState(Boolean isChange) {
+
+               }
+           };
         }
     };
+
+    //重写onActivityResult方法
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != RESULT_OK) return;
+        if (data == null) return;
+
+        switch (requestCode) {
+            case Constance.REQUEST_CODE_PICK_CITY:  //选择城市
+                String city = data.getStringExtra(CityPickerActivity.KEY_PICKED_CITY);
+                Toast.makeText(LauncherActivity.this, "您当前的定位城市是 " + city, Toast.LENGTH_SHORT).show();
+                break;
+
+
+            case Constance.REQUEST_CODE_GET_HEARD_IMAGE:  //选择头像
+                String documentPath = DocumentPathUtils.getDocumentPath(this, data.getData());
+                mCircleImageView.setImageBitmap(ImageUtils.imgToBase64(documentPath));
+                break;
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            if ((System.currentTimeMillis() - mExitTime) > 2000) {
+                Toast.makeText(LauncherActivity.this, "再按一次退出程序哦", Toast.LENGTH_SHORT).show();
+                mExitTime = System.currentTimeMillis();
+            } else {
+                finish();
+            }
+        }
+    }
+
 }

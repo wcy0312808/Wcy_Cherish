@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.squareup.leakcanary.RefWatcher;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.message.PushAgent;
 
@@ -47,6 +48,9 @@ import wcy.godinsec.wcy_dandan.utils.StatusBarUtil;
  * 其中还包含两个方法，
  * 一个是onSaveInstanceState targetSDK < 3 的时候是在 onPause targetSDK > 3 的时候就是在onStop中了
  * 一个是OnRestoreInstanceState 是在onStart之后 onResume 之前调用的
+ *
+ * 当前类定义为abstract 抽象的，是因为我们只为自己的衍生类提供一个接口，不想要其他对象实例化它，对它的属性或者其他类做变动
+ * 只为上溯造型成它
  */
 public abstract class BaseActivity<V, P extends BasePresenter> extends FragmentActivity {
     //presenter
@@ -70,12 +74,17 @@ public abstract class BaseActivity<V, P extends BasePresenter> extends FragmentA
         MobclickAgent.onPause(this);
     }
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(setContentlayout());
-        //绑定ButterKnife工具
-        mUnbinder = ButterKnife.bind(this);
+
+        if (setContentlayout() != 0) {
+            setContentView(setContentlayout());
+            //绑定ButterKnife工具
+            mUnbinder = ButterKnife.bind(this);
+
+        }
 
         //创建presenter 默认返回的是空，如果子类需要实现才会重写
         if (mPresenter == null)
@@ -97,8 +106,7 @@ public abstract class BaseActivity<V, P extends BasePresenter> extends FragmentA
         PushAgent.getInstance(WcyApplication.getInstance()).onAppStart();
 
         mMyFragmentManager = new MyFragmentManager(this);
-        initViews();  //子类的初始化视图
-        initDatas();   //子类初始化数据
+        initialize();   //子类初始化数据
     }
 
     @Override
@@ -115,12 +123,12 @@ public abstract class BaseActivity<V, P extends BasePresenter> extends FragmentA
 
 
         //将当前Activity从存放Activity的集合中移除
-        AppActivityUtils.getAppActivityUtils().removeActivity(this);
+//        AppActivityUtils.getAppActivityUtils().removeActivity(this);
 
 
         //初始Activity中加入如下两行代码用于LeakCanary
-//        RefWatcher refWatcher = WcyApplication.getRefWatcher(this);
-//        refWatcher.watch(this);
+        RefWatcher refWatcher = WcyApplication.getRefWatcher(this);
+        refWatcher.watch(this);
     }
 
 
@@ -297,10 +305,8 @@ public abstract class BaseActivity<V, P extends BasePresenter> extends FragmentA
         return false;
     }
 
-    protected void initViews() {
-    }
+    protected void initialize() {
 
-    protected void initDatas() {
     }
 
     //重写该方法，使其空实现

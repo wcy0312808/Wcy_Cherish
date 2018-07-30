@@ -1,7 +1,10 @@
 package wcy.godinsec.wcy_dandan.utils;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInstaller;
+import android.content.pm.PackageManager;
 import android.util.Base64;
 
 import java.io.ByteArrayInputStream;
@@ -11,26 +14,28 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class BeanToString {
+public class BeanToStringUtils {
 
-    private static BeanToString instance;
+    private static BeanToStringUtils instance;
 
     private static final String DEFAULT_NAME = "channel.xml";
     private String name = DEFAULT_NAME;
 
-    public static BeanToString getInstance(){
-        if(instance == null){
-            synchronized (BeanToString.class){
-                if(instance == null){
-                    instance = new BeanToString();
+    public static BeanToStringUtils getInstance(Context context) {
+        if (instance == null) {
+            synchronized (BeanToStringUtils.class) {
+                if (instance == null) {
+                    instance = new BeanToStringUtils();
                 }
             }
         }
+        PackageManager manager = context.getPackageManager();
+//        PackageInstaller packageInstaller = manager.getPackageInstaller();
         return instance;
     }
 
-    public  void putBean(Context context, String key, Object obj) {
-        SharedPreferences sp = context.getSharedPreferences(name,Context.MODE_PRIVATE);
+    public void putBean(Context context, String key, Object obj) {
+        SharedPreferences sp = context.getSharedPreferences(name, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
 
 
@@ -53,8 +58,8 @@ public class BeanToString {
 
     }
 
-    public  Object getBean(Context context, String key,String defValue) {
-        SharedPreferences sp = context.getSharedPreferences(name,Context.MODE_PRIVATE);
+    public Object getBean(Context context, String key, String defValue) {
+        SharedPreferences sp = context.getSharedPreferences(name, Context.MODE_PRIVATE);
 
         Object obj = null;
         try {
@@ -70,13 +75,13 @@ public class BeanToString {
 
         }
         return obj;
-}
+    }
 
 
-    public void remove(Context mContext,String key){
-        SharedPreferences sp = mContext.getSharedPreferences(name,Context.MODE_PRIVATE);
+    public void remove(Context mContext, String key) {
+        SharedPreferences sp = mContext.getSharedPreferences(name, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
-        if (key!=null){
+        if (key != null) {
             editor.remove(key);
             editor.commit();
         }

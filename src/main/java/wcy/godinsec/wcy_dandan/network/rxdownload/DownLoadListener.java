@@ -18,9 +18,9 @@ public interface DownLoadListener<T> {
      */
     public void onStartDown();
 
+
     /**
-     * 失败或者错误方法
-     * 主动调用，更加灵活
+     * 下载失败
      *
      * @param e
      */
@@ -28,13 +28,13 @@ public interface DownLoadListener<T> {
 
 
     /**
-     * 暂停下载
+     * 暂停下载，保留当前的数据
      */
     public void onPuaseDown();
 
 
     /**
-     * 停止下载
+     * 停止下载，将当前数据全部清空
      */
     public void onStopDown();
 
@@ -42,8 +42,8 @@ public interface DownLoadListener<T> {
     /**
      * 下载进度
      *
-     * @param currentLength  下载了多少
-     * @param TotalLength 总值是多少
+     * @param currentLength 下载了多少
+     * @param TotalLength   总值是多少
      */
     public abstract void updateProgress(long currentLength, long TotalLength);
 }

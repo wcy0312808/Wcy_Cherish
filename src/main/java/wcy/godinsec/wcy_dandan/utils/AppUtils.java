@@ -12,8 +12,10 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -32,17 +34,11 @@ import static android.content.pm.PackageManager.GET_UNINSTALLED_PACKAGES;
  * WeChat：15110052956
  * QQ    ：837513007
  * Function：
- //        File file = new File(path);
- //        String newPath = path.substring(0, path.length() - 4) + "apk";
- //        File newFile = new File(newPath);
- //        file.renameTo(newFile); //重新命名文件
- //        LogUtils.e("path = =" + path + "  name = =" + appName +"  newPath = ="+newPath);
- //        String fileMD5 = AppUtils.getFileMD5(newFile);
- //        DownLoadSQLManager.getInstance().updateLocalPathAndStatus(newPath,appName, fileMD5);
-
  */
 public class AppUtils {
-    public static void startTagActivity(Context context, String pkg) {
+
+    //根据意图，跳转到目标APP
+    public static void startTagApp(Context context, String pkg) {
         long availSpace = AppUtils.getAvailSpace(Environment.getDataDirectory().getAbsolutePath());
         if (availSpace < 100 * 1024 * 1024) {//内存小于100M提示用户内存不足
             ToastUtils.showShortToast(context.getResources().getString(R.string.memory_full_not_run));
@@ -55,6 +51,7 @@ public class AppUtils {
         DownLoadSQLManager.getInstance().updateLastTimeByPkg(pkg);//更新应用最后使用时间
     }
 
+    //根据包名获取到应该跳转的意图
     public static Intent getIntent(String packageName, int launchFlags) {
         Intent intent = WcyApplication.getInstance().getPackageManager().getLaunchIntentForPackage(packageName);
         if (intent == null) {
@@ -65,13 +62,9 @@ public class AppUtils {
         return intent;
     }
 
-    /**
-     * 安装App
-     *
-     * @param path app下载路径
-     */
+    // 安装App   path 代表的是路径
     public static void install(String path, String appName) {
-        if (path == null){
+        if (path == null) {
             ToastUtils.showLongToastSafe("安装地址失败");
         }
         // 核心是下面几句代码
@@ -83,9 +76,6 @@ public class AppUtils {
 
     /**
      * 获取apk的MD5值
-     *
-     * @param file
-     * @return
      */
     public static String getFileMD5(File file) {
         if (!file.isFile()) {
@@ -128,14 +118,11 @@ public class AppUtils {
 
     /**
      * 应用是否被安装
-     *
-     * @param packagename
-     * @return
      */
     public static PackageInfo isAppInstalled(String packagename) {
         PackageInfo packageInfo;
         try {
-            packageInfo = WcyApplication.getInstance().getPackageManager().getPackageInfo(packagename,GET_UNINSTALLED_PACKAGES);
+            packageInfo = WcyApplication.getInstance().getPackageManager().getPackageInfo(packagename, GET_UNINSTALLED_PACKAGES);
         } catch (Exception e) {
             packageInfo = null;
         }
@@ -148,9 +135,6 @@ public class AppUtils {
 
     /**
      * 获取可用内存空间
-     *
-     * @param path
-     * @return
      */
     public static long getAvailSpace(String path) {
         //获取可用内存大小
@@ -165,8 +149,6 @@ public class AppUtils {
 
     /**
      * 删除文件夹
-     *
-     * @param path
      */
     public static void deleteFile(String path) {
         if (path != null && path.length() > 0) {
@@ -180,9 +162,6 @@ public class AppUtils {
 
     /**
      * MD5加密
-     *
-     * @param string
-     * @return
      */
     public static String MD5(String string) {
         if (android.text.TextUtils.isEmpty(string)) {
@@ -209,20 +188,18 @@ public class AppUtils {
 
     /**
      * 保留一位小数
-     *
-     * @return
      */
     public static String formatFloat(float number, String format) {
         DecimalFormat decimalFormat = new DecimalFormat(format);
         return decimalFormat.format(number);
     }
 
-    public static void transfiguration(String activity_alias,Context ctx) {
+    public static void transfiguration(String activity_alias, Context ctx) {
         PackageManager pm = ctx.getPackageManager();
         // 使ACTIVITY_ALIAS_1失效
         pm.setComponentEnabledSetting(
                 new ComponentName(ctx, Constance.ACTIVITY_ALIAS_1),
-                Constance. ACTIVITY_ALIAS_1.equals(activity_alias) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                Constance.ACTIVITY_ALIAS_1.equals(activity_alias) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
         );
         // 使ACTIVITY_ALIAS_2生效
@@ -231,7 +208,6 @@ public class AppUtils {
                 Constance.ACTIVITY_ALIAS_2.equals(activity_alias) ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP
         );
-
 
         ActivityManager am = (ActivityManager) ctx.getSystemService(Activity.ACTIVITY_SERVICE);
         Intent i = new Intent(Intent.ACTION_MAIN);
@@ -242,6 +218,22 @@ public class AppUtils {
             if (res.activityInfo != null) {
                 am.killBackgroundProcesses(res.activityInfo.packageName);
             }
+        }
+    }
+
+    /*
+    * 获取到进程名称
+    */
+    public static String getProcessName() {
+        try {
+            File file = new File("/proc/" + android.os.Process.myPid() + "/" + "cmdline");
+            BufferedReader mBufferedReader = new BufferedReader(new FileReader(file));
+            String processName = mBufferedReader.readLine().trim();
+            mBufferedReader.close();
+            return processName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 

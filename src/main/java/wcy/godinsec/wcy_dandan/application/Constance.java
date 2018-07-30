@@ -1,5 +1,9 @@
 package wcy.godinsec.wcy_dandan.application;
 
+import android.os.Environment;
+
+import java.io.File;
+
 /**
  * Auther：杨玉安 on 2017/7/7 12:51
  * E-meil：wcy0312808@163.com
@@ -8,6 +12,13 @@ package wcy.godinsec.wcy_dandan.application;
  * Function：总的接口回到的父类，为以后实现多态做准备
  */
 public class Constance {
+    public static final String mDownLoadPath = Environment.getExternalStorageDirectory() + File.separator + "cheirse";
+
+    public static final int REQUEST_CODE_PICK_CITY = 0x1111;
+    public static final int REQUEST_CODE_GET_HEARD_IMAGE = 0x1112;
+
+
+
     /******************************** Error - start*****************************************/
     public static final int UNAUTHORIZED = 401;
     public static final int FORBIDDEN = 403;
@@ -40,6 +51,7 @@ public class Constance {
 
     /******************************** DBBASE  - start*****************************************/
     public static final String NAME = "CHERISE.db";
+    public static final String DATABASE_NAME = "CHERISH.db";
     public static final String TABLE_DOWNLOAD_APP = "_downlaod_app";
     public static final String TABLE_USER_INFO = "_user_info";
 

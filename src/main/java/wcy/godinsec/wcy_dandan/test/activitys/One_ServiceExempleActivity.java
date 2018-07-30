@@ -29,7 +29,7 @@ import wcy.godinsec.wcy_dandan.test.services.MessagerService;
  * QQ    ：837513007
  * Function：
  */
-public class One_ServiceActivity extends BaseActivity {
+public class One_ServiceExempleActivity extends BaseActivity {
     @BindView(R.id.start)
     TextView mStart;
     @BindView(R.id.stop)

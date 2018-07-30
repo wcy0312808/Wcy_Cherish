@@ -3,6 +3,7 @@ package wcy.godinsec.wcy_dandan.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.os.Build;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,6 +20,12 @@ import java.io.InputStream;
  * Function：
  */
 public class ImageDispose {
+
+    public static String getImagePath(){
+        boolean aboveKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;//api如果大于19需要做特殊处理
+//        if (aboveKitKat && )
+        return null;
+    }
 
     /**
      * 将图片内容解析成字节数组
@@ -70,8 +77,7 @@ public class ImageDispose {
         float scaleWidth = ((float) w / width);
         float scaleHeight = ((float) h / height);
         matrix.postScale(scaleWidth, scaleHeight);
-        Bitmap newBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height,
-                matrix, true);
+        Bitmap newBmp = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
         return newBmp;
     }
 

@@ -41,7 +41,7 @@ import wcy.godinsec.wcy_dandan.utils.LogUtils;
  * QQ    ：837513007
  * Function： http加密练习
  */
-public class EncryptionActivity extends BaseActivity {
+public class EncryptionExempleActivity extends BaseActivity {
     @Override
     protected int setContentlayout() {
         return R.layout.activity_launcher_layout;

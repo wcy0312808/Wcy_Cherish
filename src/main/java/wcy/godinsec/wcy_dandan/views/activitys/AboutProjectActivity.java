@@ -1,35 +1,39 @@
 package wcy.godinsec.wcy_dandan.views.activitys;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.view.animation.LinearInterpolator;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 
+import com.flaviofaria.kenburnsview.KenBurnsView;
+import com.flaviofaria.kenburnsview.RandomTransitionGenerator;
 import com.umeng.socialize.UMShareAPI;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import wcy.godinsec.wcy_dandan.R;
 import wcy.godinsec.wcy_dandan.appbase.BaseActivity;
 import wcy.godinsec.wcy_dandan.bean.EventBean;
-import wcy.godinsec.wcy_dandan.utils.GestureDetectorUtils;
+import wcy.godinsec.wcy_dandan.interfaces.OnSelectAllListener;
 import wcy.godinsec.wcy_dandan.utils.LogUtils;
 import wcy.godinsec.wcy_dandan.utils.StatusBarUtil;
+import wcy.godinsec.wcy_dandan.views.adapter.CommonRecyclerViewAdapter;
+import wcy.godinsec.wcy_dandan.views.adapter.CommonViewHolder;
 import wcy.godinsec.wcy_dandan.views.dialog.ShareFriendDialog;
 
 /**
@@ -39,7 +43,7 @@ import wcy.godinsec.wcy_dandan.views.dialog.ShareFriendDialog;
  * QQ    ：837513007
  * Function： 关于我们的页面
  */
-public class AboutProjectActivity extends BaseActivity {
+public class AboutProjectActivity extends BaseActivity implements OnSelectAllListener {
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.collapsingToolBar)
@@ -47,10 +51,16 @@ public class AboutProjectActivity extends BaseActivity {
     @BindView(R.id.about_title)
     AppBarLayout mAboutTitle;
     @BindView(R.id.nav_home_image)
-    ImageView mNavHomeImage;
+    KenBurnsView mNavHomeImage;
     @BindView(R.id.FAB_about_share)
     FloatingActionButton mFABAboutShare;
+    @BindView(R.id.listview)
+    RecyclerView mListview;
+    @BindView(R.id.text)
+    CheckBox mText;
+    private CommonRecyclerViewAdapter mAdapter;
     private ShareFriendDialog mShareFriendDialog;
+    private ArrayList<String> mArrayList = new ArrayList<>();
 
     @Override
     protected int setContentlayout() {
@@ -61,6 +71,34 @@ public class AboutProjectActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StatusBarUtil.setTranslucentForImageView(this, 0, mToolbar);
+//        mCollapsingToolBar.setContentScrimColor(Color.RED);
+
+        for (int i = 0; i < 50; i++) {
+            mArrayList.add("I am this " + i + " content");
+        }
+
+        mAdapter = new CommonRecyclerViewAdapter<String>(this, R.layout.item_task, mArrayList, this) {
+            @Override
+            public void conver(CommonViewHolder viewHodler, String data) {
+                viewHodler.setText(R.id.tv_app_size, data);
+                viewHodler.setCheckBox(R.id.checkbox);
+            }
+        };
+
+        mListview.setLayoutManager(new LinearLayoutManager(this));
+        mListview.setAdapter(mAdapter);
+
+        mText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mText.isChecked()) {
+                    mAdapter.allSelect(true);
+                } else {
+                    mAdapter.allSelect(false);
+                }
+                mAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private String getActionName(int action) {
@@ -85,15 +123,9 @@ public class AboutProjectActivity extends BaseActivity {
     }
 
     @Override
-    protected void initViews() {
-        super.initViews();
-        mCollapsingToolBar.setTitle("个人中心");
+    protected void initialize() {
+        super.initialize();
         EventBus.getDefault().post(new EventBean<String>(0000));
-    }
-
-    @Override
-    protected void initDatas() {
-        super.initDatas();
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,6 +133,8 @@ public class AboutProjectActivity extends BaseActivity {
             }
         });
     }
+
+
 
 
     @Override
@@ -130,5 +164,22 @@ public class AboutProjectActivity extends BaseActivity {
         UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mNavHomeImage.resume();
+        RandomTransitionGenerator generator = new RandomTransitionGenerator(3000, new LinearInterpolator());
+        mNavHomeImage.setTransitionGenerator(generator);
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mNavHomeImage.pause();
+    }
+
+    @Override
+    public void changeState(Boolean isChange) {
+        mText.setChecked(isChange);
+    }
 }
